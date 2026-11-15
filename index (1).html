@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Компакт-спортинг: щоденник</title>
+<style>
+:root{--paper:#eef1ec;--card:#fff;--ink:#1d2b22;--muted:#5f6f64;--line:#d3dbd3;--field:#2f4a3a;--fieldink:#fff;--clay:#e4572e;--err:#8a2a12;--errbg:#fbe9e4;--okbg:#e3f1e8;--ok:#1f5a37;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#121a15;--card:#1b261f;--ink:#e6ede7;--muted:#9bab9f;--line:#2e3d33;--field:#7fb596;--fieldink:#102016;--clay:#ff7a52;--err:#ffb4a0;--errbg:#3a1d15;--okbg:#17301f;--ok:#9fdcb4;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#121a15;--card:#1b261f;--ink:#e6ede7;--muted:#9bab9f;--line:#2e3d33;--field:#7fb596;--fieldink:#102016;--clay:#ff7a52;--err:#ffb4a0;--errbg:#3a1d15;--okbg:#17301f;--ok:#9fdcb4;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding:16px}
+.wrap{max-width:560px;margin:0 auto}
+h1{font-size:22px;margin:0 0 14px;letter-spacing:-.01em}
+h2{font-size:17px;margin:0 0 12px}
+h3{font-size:14px;margin:0 0 10px;color:var(--field)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+.sec{border-top:1px solid var(--line);margin-top:18px;padding-top:14px}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+input{width:100%;padding:10px;font-size:16px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);margin-bottom:10px;font-family:inherit}
+input:focus-visible,button:focus-visible{outline:2px solid var(--clay);outline-offset:2px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.chip{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--card);font-size:14px;color:var(--ink);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--field);color:var(--fieldink);border-color:var(--field)}
+.btn{padding:12px;border:none;border-radius:8px;font-size:16px;cursor:pointer;width:100%;background:var(--field);color:var(--fieldink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);width:auto;padding:6px 12px;font-size:14px;border-radius:8px;cursor:pointer}
+.series{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)}
+.series:last-of-type{border-bottom:none}
+.step{display:flex;align-items:center;gap:6px}
+.step button{width:44px;height:44px;border-radius:8px;border:1px solid var(--line);background:var(--card);font-size:22px;color:var(--ink);cursor:pointer}
+.step button.full{color:var(--clay);font-size:13px;width:52px}
+.step output{width:40px;text-align:center;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.total{display:flex;justify-content:space-between;align-items:baseline;margin:16px 0 12px}
+.total b{font-size:34px;color:var(--clay);font-variant-numeric:tabular-nums}
+.msg{padding:10px 12px;border-radius:6px;margin-bottom:12px;font-size:14px;background:var(--okbg);color:var(--ok)}
+.msg.err{background:var(--errbg);color:var(--err)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}
+.stat b{display:block;font-size:22px;color:var(--field)}
+.stat span{font-size:12px;color:var(--muted)}
+.item{border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:10px;background:var(--card)}
+.head{display:flex;justify-content:space-between;gap:8px;font-weight:700}
+.meta{color:var(--muted);font-size:13px;line-height:1.5}
+.bars{display:flex;gap:3px;margin:8px 0;align-items:flex-end;height:28px}
+.bars i{flex:1;background:var(--field);border-radius:2px 2px 0 0;min-height:2px}
+.note{font-size:12px;color:var(--muted);margin:0 0 16px}
+[hidden]{display:none!important}
+.login{text-align:center;padding-top:60px}
+.gbtn{background:#4285f4;color:#fff;border:none;border-radius:8px;padding:12px 22px;font-size:16px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap login" id="login" hidden>
+  <h1>Компакт-спортинг: щоденник</h1>
+  <p class="note">Увійдіть, щоб зберігати свої результати.</p>
+  <div id="loginmsg"></div>
+  <button class="gbtn" id="gin">Увійти через Google</button>
+</div>
+<div class="wrap" id="app" hidden>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><h1 style="margin:0">Компакт-спортинг</h1><button class="ghost" id="out">Вийти</button></div>
+  <p class="note" id="note">Ваші записи приватні: їх бачите тільки ви.</p>
+  <div id="msg"></div>
+  <div id="stats"></div>
+  <div class="card">
+    <h2>Новий запис</h2>
+    <label for="comp">Змагання або тренування</label>
+    <input id="comp" type="text" placeholder="Напр. Кубок області">
+    <div class="row">
+      <div><label for="place">Місце</label><input id="place" type="text" list="places" placeholder="Стрілецький клуб"></div>
+      <div><label for="date">Дата</label><input id="date" type="date"></div>
+    </div>
+    <datalist id="places"></datalist>
+
+    <div class="sec"><h3>Погода</h3>
+      <div class="chips" id="cond"></div>
+      <label>Вітер</label>
+      <div class="chips" id="wind"></div>
+      <label for="temp">Температура, °C</label>
+      <input id="temp" type="number" inputmode="numeric" placeholder="18">
+    </div>
+
+    <div class="sec"><h3>Рушниця</h3>
+      <label for="gun">Модель</label>
+      <input id="gun" type="text" list="guns" placeholder="Напр. Beretta 692">
+      <datalist id="guns"></datalist>
+      <label>Калібр</label>
+      <div class="chips" id="gauge"></div>
+      <label for="choke">Чоки</label>
+      <input id="choke" type="text" placeholder="Напр. ¼ і ½">
+    </div>
+
+    <div class="sec"><h3>Набої</h3>
+      <label for="cart">Марка</label>
+      <input id="cart" type="text" list="carts" placeholder="Напр. Fiocchi Target">
+      <datalist id="carts"></datalist>
+      <div class="row">
+        <div><label for="grams">Навіска, г</label><input id="grams" type="text" inputmode="decimal" placeholder="24"></div>
+        <div><label for="shot">Номер дробу</label><input id="shot" type="text" inputmode="decimal" placeholder="7.5"></div>
+      </div>
+    </div>
+
+    <div class="sec"><h3>Результат</h3>
+      <label>Кількість серій по 25 тарілок</label>
+      <div class="chips" id="count"></div>
+      <div id="series"></div>
+      <div class="total"><span id="pct"></span><b id="total"></b></div>
+      <button class="btn" id="save">Зберегти результат</button>
+    </div>
+  </div>
+  <h2>Історія</h2>
+  <div id="history"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDc901hPba7x4Ucb7acpwnuwVh0RiRF5zo",
+  authDomain: "shoting-sport-bfb44.firebaseapp.com",
+  projectId: "shoting-sport-bfb44",
+  storageBucket: "shoting-sport-bfb44.firebasestorage.app",
+  messagingSenderId: "387956368915",
+  appId: "1:387956368915:web:4a53301114c564e21881e6"
+};
+const fbApp = initializeApp(firebaseConfig);
+const auth = getAuth(fbApp);
+const fdb = getFirestore(fbApp);
+(function(){
+  var PER = 25;
+  var CONDS = ["Сонячно","Хмарно","Дощ","Туман","Сніг"];
+  var WINDS = ["Штиль","Слабкий","Помірний","Сильний"];
+  var GAUGES = ["12","20","28",".410"];
+  var COUNTS = [2,4,8];
+  var $ = function(id){ return document.getElementById(id); };
+  var S = { cond:"", wind:"", gauge:"12", count:4, scores:[0,0,0,0] };
+  var history = [];
+  var store = { save:null, remove:null };
+
+  function sortH(){ history.sort(function(a,b){ return (b.date || "").localeCompare(a.date || "") || (b.createdAt || 0) - (a.createdAt || 0); }); }
+  function applyPrefill(){
+    if (!history.length) return;
+    var l = history[0], g = l.gun || {}, c = l.cartridge || {};
+    $("place").value = l.place || ""; $("gun").value = g.name || ""; $("choke").value = g.choke || "";
+    S.gauge = g.gauge || "12"; chips("gauge", GAUGES, "gauge", false);
+    $("cart").value = c.brand || ""; $("grams").value = c.grams || ""; $("shot").value = c.shot || "";
+  }
+  function pct(a,b){ return b ? Math.round(a/b*100) : 0; }
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function msg(text, err){ var m = $("msg"); m.innerHTML = '<div class="msg' + (err ? " err" : "") + '" role="status">' + esc(text) + '</div>'; }
+
+  function chips(id, opts, key, toggle){
+    var el = $(id); el.innerHTML = "";
+    opts.forEach(function(o){
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.textContent = o;
+      b.setAttribute("aria-pressed", String(S[key]) === String(o));
+      b.onclick = function(){
+        if (key === "count") { setCount(o); return; }
+        S[key] = (toggle && String(S[key]) === String(o)) ? "" : o;
+        chips(id, opts, key, toggle);
+      };
+      el.appendChild(b);
+    });
+  }
+
+  function setCount(n){
+    S.count = n;
+    S.scores = Array.apply(null, Array(n)).map(function(_, i){ return S.scores[i] || 0; });
+    chips("count", COUNTS, "count");
+    renderSeries();
+  }
+
+  function setScore(i, v){ S.scores[i] = Math.max(0, Math.min(PER, v)); renderSeries(); }
+
+  function renderSeries(){
+    var box = $("series"); box.innerHTML = "";
+    S.scores.forEach(function(s, i){
+      var d = document.createElement("div"); d.className = "series";
+      d.innerHTML = '<span>Серія ' + (i+1) + '</span><div class="step">' +
+        '<button type="button" aria-label="Серія ' + (i+1) + ': мінус">−</button>' +
+        '<output>' + s + '</output>' +
+        '<button type="button" aria-label="Серія ' + (i+1) + ': плюс">+</button>' +
+        '<button type="button" class="full">25</button></div>';
+      var b = d.querySelectorAll("button");
+      b[0].onclick = function(){ setScore(i, S.scores[i]-1); };
+      b[1].onclick = function(){ setScore(i, S.scores[i]+1); };
+      b[2].onclick = function(){ setScore(i, PER); };
+      box.appendChild(d);
+    });
+    var total = S.scores.reduce(function(a,b){ return a+b; }, 0), max = S.count * PER;
+    $("total").textContent = total + " / " + max;
+    $("pct").textContent = "Разом: " + pct(total, max) + "%";
+    $("save").disabled = total === 0;
+  }
+
+  function uniq(fn){
+    var seen = {}, out = [];
+    history.forEach(function(h){ var v = fn(h); if (v && !seen[v]) { seen[v] = 1; out.push(v); } });
+    return out;
+  }
+
+  var unsub = null;
+  function initStore(){
+    $("gin").onclick = function(){
+      signInWithPopup(auth, new GoogleAuthProvider()).catch(function(e){
+        $("loginmsg").innerHTML = '<div class="msg err">Помилка входу: ' + esc(e.message) + '</div>';
+      });
+    };
+    $("out").onclick = function(){ signOut(auth); };
+    onAuthStateChanged(auth, function(user){
+      if (unsub) { unsub(); unsub = null; }
+      if (!user) { $("app").hidden = true; $("login").hidden = false; history = []; store.save = null; store.remove = null; return; }
+      $("login").hidden = true; $("app").hidden = false;
+      var path = "users/" + user.uid + "/history";
+      store.save = function(e){ return setDoc(doc(fdb, path, String(e.id)), e); };
+      store.remove = function(id){ return deleteDoc(doc(fdb, path, String(id))); };
+      var first = true;
+      unsub = onSnapshot(collection(fdb, path), function(snap){
+        history = snap.docs.map(function(d){ var o = d.data(); o.id = d.id; return o; });
+        sortH();
+        if (first) { first = false; applyPrefill(); }
+        renderHistory();
+      }, function(){ msg("Не вдалося завантажити записи.", true); });
+    });
+  }
+
+  function fillList(id, vals){ $(id).innerHTML = vals.map(function(v){ return '<option value="' + esc(v) + '">'; }).join(""); }
+
+  function renderHistory(){
+    fillList("places", uniq(function(h){ return h.place; }));
+    fillList("guns", uniq(function(h){ return h.gun && h.gun.name; }));
+    fillList("carts", uniq(function(h){ return h.cartridge && h.cartridge.brand; }));
+
+    if (history.length) {
+      var ps = history.map(function(h){ return pct(h.total, h.max); });
+      var best = Math.max.apply(null, ps), avg = Math.round(ps.reduce(function(a,b){ return a+b; }, 0) / ps.length);
+      $("stats").innerHTML = '<div class="stats"><div class="stat"><b>' + history.length + '</b><span>записів</span></div><div class="stat"><b>' + best + '%</b><span>найкращий</span></div><div class="stat"><b>' + avg + '%</b><span>середній</span></div></div>';
+    } else { $("stats").innerHTML = ""; }
+
+    if (!history.length) { $("history").innerHTML = '<p class="meta">Записів ще немає. Збережіть перший результат вище.</p>'; return; }
+    $("history").innerHTML = history.map(function(h){
+      var w = h.weather || {}, g = h.gun || {}, c = h.cartridge || {};
+      var wt = [w.condition, w.wind && ("вітер: " + w.wind.toLowerCase()), (w.temp != null) && (w.temp + "°C")].filter(Boolean).join(", ");
+      var gt = g.name ? [g.name, g.gauge && (g.gauge + " к."), g.choke && ("чоки " + g.choke)].filter(Boolean).join(", ") : "";
+      var ct = c.brand ? [c.brand, c.grams && (c.grams + " г"), c.shot && ("дріб " + c.shot)].filter(Boolean).join(", ") : "";
+      var d = h.date ? new Date(h.date).toLocaleDateString("uk-UA") : "";
+      return '<div class="item"><div class="head"><span>' + esc(h.competition) + '</span><span>' + h.total + ' / ' + h.max + ' · ' + pct(h.total, h.max) + '%</span></div>' +
+        '<div class="meta">' + esc(d) + (h.place ? ", " + esc(h.place) : "") + '</div>' +
+        '<div class="bars" aria-hidden="true">' + (h.scores || []).map(function(s){ return '<i style="height:' + pct(s, PER) + '%"></i>'; }).join("") + '</div>' +
+        '<div class="meta">Серії: ' + (h.scores || []).join(", ") + '</div>' +
+        (wt ? '<div class="meta">Погода: ' + esc(wt) + '</div>' : "") +
+        (gt ? '<div class="meta">Рушниця: ' + esc(gt) + '</div>' : "") +
+        (ct ? '<div class="meta">Набої: ' + esc(ct) + '</div>' : "") +
+        '<div style="margin-top:8px"><button class="ghost" data-del="' + esc(h.id) + '">Видалити</button></div></div>';
+    }).join("");
+  }
+
+  $("history").addEventListener("click", function(e){
+    var id = e.target.getAttribute && e.target.getAttribute("data-del");
+    if (!id || !window.confirm("Видалити цей запис?")) return;
+    if (!store.remove) return;
+    store.remove(id).catch(function(){ msg("Не вдалося видалити запис.", true); });
+  });
+
+  $("save").onclick = function(){
+    var total = S.scores.reduce(function(a,b){ return a+b; }, 0);
+    if (total === 0) { msg("Введіть результат хоча б однієї серії.", true); return; }
+    if (!store.save) { msg("Спочатку увійдіть в акаунт.", true); return; }
+    var t = $("temp").value;
+    var now = Date.now();
+    var entry = {
+      id: now, createdAt: now,
+      competition: $("comp").value.trim() || "Тренування",
+      place: $("place").value.trim(),
+      date: $("date").value,
+      weather: { condition: S.cond, wind: S.wind, temp: t === "" ? null : Number(t) },
+      gun: { name: $("gun").value.trim(), gauge: S.gauge, choke: $("choke").value.trim() },
+      cartridge: { brand: $("cart").value.trim(), grams: $("grams").value.trim(), shot: $("shot").value.trim() },
+      scores: S.scores.slice(), total: total, max: S.count * PER
+    };
+    store.save(entry).then(function(){
+      $("comp").value = "";
+      S.scores = S.scores.map(function(){ return 0; });
+      renderSeries();
+      msg("Результат збережено.");
+    }).catch(function(){ msg("Не вдалося зберегти. Спробуйте ще раз.", true); });
+  };
+
+  $("date").value = new Date().toISOString().slice(0, 10);
+  chips("cond", CONDS, "cond", true);
+  chips("wind", WINDS, "wind", true);
+  chips("gauge", GAUGES, "gauge", false);
+  chips("count", COUNTS, "count");
+  renderSeries();
+  renderHistory();
+  initStore();
+})();
+</script>
+</body>
+</html>
